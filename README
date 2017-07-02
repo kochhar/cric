@@ -1,0 +1,10 @@
+Some tools to play with T20 cricked data.
+
+There are two components to this repo.
+1. cric module which provides handy tools for parsing and structuring cricket data
+   from cricsheet.
+2. Exploratory notebooks in nb/ which explore different aspects of the data
+
+
+For a start see the conversion notebook in nb/
+For a deep-dive look into cric.match module
