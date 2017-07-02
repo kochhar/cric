@@ -4,18 +4,24 @@ import pandas as pd
 import pickers as pck
 
 
-def create_innings_dataframe(innings):
+def create_innings_dataframe(number, innings):
     """Given an cricsheet innings convert it into a data frame"""
     delivery_ids, outcomes = split_id_outcome(pck.pick_deliveries(innings))
     # heirarchical index by over and delivery. eg: 4.3 => (4, 3)
-    outcome_index = heirarchical_delivery_index(delivery_ids)
+    outcome_index = heirarchical_delivery_index(number, delivery_ids)
     # flatten the outcome into columns
     outcome_rows = [flat_delivery_outcome(o) for o in outcomes]
 
     inning_df = pd.DataFrame(outcome_rows, index=outcome_index)
+    if 'rb' in inning_df.columns:
+        inning_df.insert(6, 'rb_cum', inning_df.groupby('batsman').rb.cumsum())
+
+    if 're' in inning_df.columns:
+        inning_df.insert(7, 're_cum', inning_df.re.cumsum())
+
     if 'rt' in inning_df.columns:
         # add a cummulative run counter
-        inning_df['rt_cum'] = inning_df.rt.cumsum()
+        inning_df.insert(8, 'rt_cum', inning_df.rt.cumsum())
 
     inning_df['w_cum'] = 0
     if 'wpo' in inning_df.columns:
@@ -51,14 +57,14 @@ def split_id_outcome(deliveries):
     return zip(*id_outcome_tuples)
 
 
-def heirarchical_delivery_index(delivery_ids):
+def heirarchical_delivery_index(inum, delivery_ids):
     """Given a list of delivery ids of the form Over.ball, converts it into a
     2-level pandas Index with overs and balls"""
     # unzip a list of pairs into a pair of lists
     balls, overs = zip(*[math.modf(did) for did in delivery_ids])
     balls = [round(b, 1) for b in balls]
     # construct the 2d index
-    index = pd.MultiIndex.from_arrays([np.array(overs), np.array(balls)], names=['over', 'ball'])
+    index = pd.MultiIndex.from_arrays([np.array([inum]*len(balls)), np.array(overs), np.array(balls)], names=['inning', 'over', 'ball'])
     return index
 
 
