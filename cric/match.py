@@ -18,7 +18,7 @@ def create_match_summaries_frame(match_summaries):
     match_infos = []
     for match in match_summaries:
         match_info = pic.pick_match_info(match)
-        match_info['dates'] = pd.to_datetime(match_info['dates'][0])
+        match_info['date'] = pd.to_datetime(match_info['dates'][0])
         match_info['team.home'], match_info['team.away'] = match_info.pop('teams')
 
         toss = match_info.pop('toss')
@@ -35,7 +35,7 @@ def create_match_summaries_frame(match_summaries):
         match_infos.append(match_info)
 
     df = pd.DataFrame(match_infos)
-    df.set_index(['dates', 'team.home', 'team.away'], inplace=True)
+    df.set_index(['date', 'team.home', 'team.away'], inplace=True)
 
     # create hierarchical column index
     # df.columns = pd.MultiIndex.from_tuples([tuple(c.split('.')) for c in df.columns])
